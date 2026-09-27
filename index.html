@@ -911,6 +911,125 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
 .demo-footnote { text-align: center; font-size: 0.76rem; color: var(--on-dark-muted); margin-top: 10px; max-width: 560px; margin-left: auto; margin-right: auto; }
 .hero-link { color: inherit; text-decoration: underline; text-decoration-color: rgba(245,246,248,0.4); text-underline-offset: 3px; transition: text-decoration-color .15s ease; }
 .hero-link:hover { text-decoration-color: rgba(245,246,248,0.85); }
+/* ================= MOBILE: simple stacked scroll, not a shrunk deck =================
+   Trying to shrink a fixed 1280x720 slide canvas down to a phone screen is
+   fragile — every element on every slide has to happen to fit inside a tiny
+   scaled box, and a fixed floating navbar has to happen to never land on
+   content. Instead, below this breakpoint the deck stops being a "deck":
+   every slide unstacks into a normal full-width block in one continuous,
+   scrollable page, at real (unscaled) type sizes. Nothing here can overlap
+   or clip, because nothing is being forced into a fixed-size box anymore —
+   it's just an ordinary responsive page, which phones already handle well.
+   Desktop/tablet (above this breakpoint) is completely unaffected. */
+@media (max-width: 560px), (max-height: 500px) {
+  .rotate-hint { display: none !important; }
+
+  html, body { height: auto; }
+  body {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    padding-bottom: 0 !important;
+  }
+
+  .stage {
+    position: static;
+    width: 100%;
+    height: auto;
+    transform: none !important;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .slide {
+    position: relative !important;
+    inset: auto;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block;
+    padding: 30px 20px 26px;
+    border-bottom: 8px solid var(--surface-2);
+  }
+  .slide.dark { border-bottom-color: #000; }
+
+  /* Purely decorative full-bleed background art (skylines, starfields,
+     scan animations) is the thing that was colliding with text at small
+     scale — it isn't needed for the content to make sense, so it's simplest
+     and most robust to drop it here rather than try to keep taming it. */
+  .illus-bg, .hero-anim, .photo-bg, .illus-fade, .hero-scrim,
+  .slide-photo .photo-overlay {
+    display: none !important;
+  }
+  .slide-photo, .slide-illus-light, .slide-title-hero { background: var(--paper) !important; }
+  .slide-photo.dark, .dark.slide-title-hero { background: var(--navy) !important; }
+
+  h1.slide-title { font-size: 1.7rem; }
+  h2.slide-title { font-size: 1.4rem; }
+  .lede { font-size: 0.95rem; max-width: none; }
+  .hero-title { font-size: 2rem !important; }
+
+  /* Layouts built for a fixed 1280px-wide row (two/four columns, the
+     eight-source constellation, comparison grids, timelines) all collapse
+     to one column so nothing is squeezed past readable width. */
+  .two-col, .reveal-wrap, .compare-grid, .stat-row,
+  .sentiment-wrap, .insight-row, .scorecard-kpis, .lapse-chart {
+    display: block !important;
+  }
+
+  /* the 4-month timeline positions every month's text with absolute
+     top/bottom offsets designed around a wide flex row — collapsing that
+     row to a mobile column left every month's text stacked directly on
+     top of the others. Rebuilt here as a plain vertical step list. */
+  .tl-track { height: auto; margin-top: 24px; padding-left: 22px; border-left: 2px solid var(--accent); }
+  .tl-line, .tl-node::before { display: none !important; }
+  .tl-nodes { display: block !important; height: auto; }
+  .tl-node { padding: 0 0 26px; }
+  .tl-node:last-child { padding-bottom: 0; }
+  .tl-dot { position: static !important; display: none; }
+  .tl-content {
+    position: static !important; opacity: 1 !important; text-align: left !important;
+    animation: none !important;
+  }
+  .two-col .col, .reveal-wrap > * { width: 100% !important; margin-bottom: 20px; }
+  .compare-grid > *, .insight-chip { margin-bottom: 14px; }
+  .scorecard-kpis > * { border-bottom: 1px solid var(--line); }
+  .lapse-col { width: 100% !important; margin-bottom: 20px; }
+  .lapse-grid { max-width: 200px; }
+  .constellation-wrap svg, .signal-stage, .scan-wrap { max-width: 100%; }
+
+  .slide-footer { position: static; margin-top: 18px; }
+  .navbar { display: none !important; }
+
+  /* a handful of caption/label rows are written with white-space: nowrap
+     for a fixed-width desktop layout — on a narrow phone that just runs
+     text off the (hidden-overflow) edge instead of wrapping, silently
+     losing the second half of the line */
+  .scan-caption-row, .compare-tag, .chain-months-text {
+    white-space: normal !important;
+  }
+  .scan-caption-row { flex-direction: column; gap: 4px; }
+
+  /* the input/output "signal" diagram positions its labels with absolute
+     top-offset percentages inside 25%-wide columns — built for a wide
+     1280px stage, that's far too narrow on a phone and stacks/overlaps
+     multi-line labels on top of each other. The center core animation is
+     decorative, so it's dropped like the other background art, and the
+     labels become a plain, fully readable two-part list instead. */
+  .signal-stage { min-height: 0; }
+  .signal-svg { display: none !important; }
+  .signal-io-col {
+    position: static !important; width: 100% !important; text-align: left !important;
+  }
+  .signal-io-item {
+    position: static !important; transform: none !important;
+    padding: 8px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.1);
+    text-align: left !important; animation: none !important; background: none !important;
+  }
+  .signal-io-label { position: static !important; display: block; margin: 18px 0 6px; }
+  .signal-lock { margin-top: 12px; }
+}
+
 </style>
 </head>
 <body>
