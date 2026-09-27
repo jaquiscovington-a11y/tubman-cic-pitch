@@ -164,6 +164,30 @@ h2.slide-title { font-family: var(--font-display); font-weight: 600; font-size: 
 .navbar button:hover { background: rgba(255,255,255,0.18); }
 .navbar .count { color: #c7cbd6; font-family: var(--font-mono); font-size: 0.75rem; padding: 0 6px; min-width: 54px; text-align: center; }
 
+.rotate-hint {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--navy-deep);
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 32px;
+  font-family: var(--font-body); color: #fff;
+}
+.rotate-hint.show { display: flex; }
+.rotate-hint svg { width: 56px; height: 56px; margin-bottom: 18px; animation: rotateHintSpin 1.6s ease-in-out infinite; }
+@keyframes rotateHintSpin {
+  0%, 15% { transform: rotate(0deg); }
+  50%, 65% { transform: rotate(-90deg); }
+  100% { transform: rotate(-90deg); }
+}
+.rotate-hint h3 { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; margin: 0 0 8px; }
+.rotate-hint p { font-size: 0.92rem; color: var(--on-dark-muted); max-width: 280px; line-height: 1.5; margin: 0 0 22px; }
+.rotate-hint button {
+  background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-pill); padding: 10px 22px; font-size: 0.85rem; font-family: var(--font-body);
+  cursor: pointer;
+}
+.rotate-hint button:hover { background: rgba(255,255,255,0.18); }
+
 @media print {
   body { overflow: visible; height: auto; background: #fff; }
   .stage { width: 100vw !important; height: 100vh !important; transform: none !important; box-shadow: none; page-break-after: always; }
@@ -887,6 +911,16 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
 </style>
 </head>
 <body>
+
+<div class="rotate-hint" id="rotateHint">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="2" width="14" height="20" rx="2.5" stroke="#fff" stroke-width="1.6"/>
+    <line x1="10" y1="18.3" x2="14" y2="18.3" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>
+  <h3>Rotate your phone</h3>
+  <p>This presentation is built for a wide (landscape) screen &mdash; turn your phone sideways for the full-size, easy-to-read view.</p>
+  <button id="viewAnywayBtn" type="button">View in portrait anyway</button>
+</div>
 
 <div class="stage" id="stage">
 
@@ -2073,6 +2107,33 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
   fitStage();
   window.addEventListener('resize', fitStage);
   window.addEventListener('orientationchange', fitStage);
+
+  // Nudge phone visitors in portrait toward landscape, where the 16:9
+  // canvas fills the screen instead of shrinking to a small letterboxed
+  // strip. Dismissible per-session for anyone who wants to stay portrait.
+  var rotateHint = document.getElementById('rotateHint');
+  var viewAnywayBtn = document.getElementById('viewAnywayBtn');
+  var dismissed = false;
+  try { dismissed = sessionStorage.getItem('tubman-rotate-dismissed') === '1'; } catch (e) {}
+  function checkOrientation() {
+    var isPhoneSized = Math.min(window.innerWidth, window.innerHeight) < 620;
+    var isPortrait = window.innerHeight > window.innerWidth;
+    if (isPhoneSized && isPortrait && !dismissed) {
+      rotateHint.classList.add('show');
+    } else {
+      rotateHint.classList.remove('show');
+    }
+  }
+  if (viewAnywayBtn) {
+    viewAnywayBtn.addEventListener('click', function(){
+      dismissed = true;
+      try { sessionStorage.setItem('tubman-rotate-dismissed', '1'); } catch (e) {}
+      rotateHint.classList.remove('show');
+    });
+  }
+  checkOrientation();
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', checkOrientation);
 
   var slides = Array.prototype.slice.call(document.querySelectorAll('[data-slide]'));
   var idx = 0;
