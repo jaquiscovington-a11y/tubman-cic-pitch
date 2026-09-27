@@ -435,7 +435,10 @@ h2.slide-title { font-family: var(--font-display); font-weight: 600; font-size: 
    disappear right where the bullet list starts */
 .slide-city-build .illus-bg { opacity: 1; }
 .slide-city-build .illus-fade {
-  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 50%, var(--paper) 78%);
+  /* fully opaque by the time the bullet list starts (~55% down) so the
+     buildings never sit behind and collide with that text — previously
+     this stayed transparent until 78%, which visibly overlapped the list */
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 28%, var(--paper) 56%);
 }
 
 /* ---- Slide 10 roadmap visual (replaces the repeated ascending-skyline bar motif) ---- */
@@ -2109,10 +2112,34 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
     }
     return { w: window.innerWidth, h: window.innerHeight };
   }
+  // The prev/next navbar is pinned a fixed distance from the bottom of the
+  // real screen (not scaled with the stage). On a short/wide viewport
+  // (a phone held sideways) the stage fills the full screen height with no
+  // letterboxing margin, so the navbar lands directly on top of whatever
+  // slide content is at the bottom. NAV_CLEARANCE is the navbar's real
+  // on-screen footprint (18px offset + ~34px tall buttons + a small
+  // buffer) that we reserve as dead space below the stage whenever the
+  // natural centering wouldn't already leave enough room for it.
+  var NAV_CLEARANCE = 76;
   function fitStage() {
     var vp = getViewportSize();
-    var scale = Math.min(vp.w / 1280, vp.h / 720);
+    var naiveScale = Math.min(vp.w / 1280, vp.h / 720);
+    var naturalMargin = (vp.h - 720 * naiveScale) / 2;
+    var scale, reserve;
+    if (naturalMargin >= NAV_CLEARANCE) {
+      // Already enough breathing room above/below (e.g. most desktop/tablet
+      // sizes) — center normally, no navbar overlap possible.
+      scale = naiveScale;
+      reserve = 0;
+    } else {
+      // Push the extra clearance the navbar needs entirely to the bottom
+      // (via body padding-bottom below) instead of splitting it evenly,
+      // so the slide itself stays as large as possible.
+      reserve = NAV_CLEARANCE;
+      scale = Math.min(vp.w / 1280, (vp.h - reserve) / 720);
+    }
     stage.style.transform = 'scale(' + scale + ')';
+    document.body.style.paddingBottom = reserve + 'px';
   }
   fitStage();
   window.addEventListener('resize', fitStage);
