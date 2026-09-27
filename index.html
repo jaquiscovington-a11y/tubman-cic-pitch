@@ -514,6 +514,7 @@ h2.slide-title { font-family: var(--font-display); font-weight: 600; font-size: 
    diagram beneath the chart and footnote */
 .chain-wrap { margin-top: 26px; width: 100%; max-width: 1160px; }
 .chain-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chain-mobile-list { display: none; }
 .chain-arrow { stroke: var(--line-strong); stroke-width: 1.6; opacity: 0; animation: chainArrowDraw .5s ease forwards; }
 .chain-node { opacity: 0; transform: scale(0.5); transform-box: fill-box; transform-origin: center; animation: chainNodeIn .45s cubic-bezier(.2,.8,.25,1) forwards; }
 .chain-label { opacity: 0; transform: translateY(6px); animation: chainLabelIn .4s ease forwards; }
@@ -555,6 +556,7 @@ h2.slide-title { font-family: var(--font-display); font-weight: 600; font-size: 
 /* ================= SLIDE 7 — data-source constellation (Animation E) ================= */
 .constellation-wrap { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; }
 .constellation-wrap svg { width: 100%; height: 100%; max-height: 360px; }
+.const-mobile-list { display: none; }
 .const-node { opacity: 0; animation: nodeIn .6s ease forwards; }
 .const-node text { font-family: var(--font-mono); font-size: 10px; fill: var(--ink-2); }
 .const-node circle { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
@@ -1008,7 +1010,103 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
   .scan-caption-row, .compare-tag, .chain-months-text {
     white-space: normal !important;
   }
-  .scan-caption-row { flex-direction: column; gap: 4px; }
+  .scan-caption-row {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+  .scan-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* the tenant-turnover -> sale causal-chain diagram is an SVG built for a
+     1200px-wide desktop canvas, with 9.5-11px SVG text — scaled down to a
+     390px phone that text becomes ~3px and unreadable. Hide the SVG on
+     mobile and show a plain stacked list with the same four steps instead. */
+  .chain-wrap { display: none; }
+  .chain-mobile-list {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    margin-top: 22px;
+    text-align: left;
+  }
+  .chain-m-item {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .chain-m-title {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+  .chain-m-sub {
+    font-size: 0.86rem;
+    color: var(--ink-4);
+    margin-top: 4px;
+  }
+  .chain-m-tag {
+    display: inline-block;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--accent);
+    background: var(--accent-wash);
+    border-radius: var(--radius-pill);
+    padding: 3px 10px;
+  }
+  .chain-m-arrow {
+    text-align: center;
+    color: var(--line-strong);
+    font-size: 1.1rem;
+    margin: 4px 0;
+  }
+
+  /* the eight-source "constellation" orbital diagram is an SVG built for
+     an 800px-wide desktop canvas with 10-11px SVG text — scaled down to a
+     390px phone that text becomes ~4px and unreadable. Hide the SVG on
+     mobile and show the same eight sources as a plain labeled grid. */
+  .constellation-wrap svg { display: none; }
+  .constellation-wrap { min-height: 0; display: block; }
+  .const-mobile-list {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .const-m-center {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #fff;
+    background: var(--accent);
+    border-radius: var(--radius-pill);
+    padding: 7px 16px;
+    display: table;
+    margin: 0 auto 14px;
+  }
+  .const-m-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .const-m-item {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 9px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    text-align: center;
+  }
 
   /* the input/output "signal" diagram positions its labels with absolute
      top-offset percentages inside 25%-wide columns — built for a wide
@@ -1682,6 +1780,28 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
       <g class="chain-months" style="animation-delay:1.05s"><rect x="874.0" y="20" width="92" height="22" rx="11" fill="var(--accent-wash)"></rect><text x="920.0" y="35" text-anchor="middle" class="chain-months-text">MONTHS OF LEAD TIME</text></g>
       </svg>
     </div>
+    <div class="chain-mobile-list">
+      <div class="chain-m-item">
+        <div class="chain-m-title">1 · TENANT TURNOVER</div>
+        <div class="chain-m-sub">small commercial tenant leaves</div>
+      </div>
+      <div class="chain-m-arrow">&darr;</div>
+      <div class="chain-m-item">
+        <div class="chain-m-title">2 · LAPSE RATE RISES</div>
+        <div class="chain-m-sub">corridor-level signal, not one business</div>
+      </div>
+      <div class="chain-m-arrow">&darr;</div>
+      <div class="chain-m-item">
+        <div class="chain-m-title">3 · DISINVESTMENT</div>
+        <div class="chain-m-sub">no reinvestment, months running</div>
+        <div class="chain-m-tag">MONTHS OF LEAD TIME</div>
+      </div>
+      <div class="chain-m-arrow">&darr;</div>
+      <div class="chain-m-item">
+        <div class="chain-m-title">4 · SALE OR NOAH LOSS</div>
+        <div class="chain-m-sub">the event CIC sees today, without Tubman</div>
+      </div>
+    </div>
     <div class="slide-footer"><span>TUBMAN × CIC</span><span class="stagecount">05 / 16</span></div>
   </section>
 
@@ -1872,6 +1992,19 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
         <g class="const-node c8" style="animation-delay:.99s"><circle cx="167" cy="84" r="36"></circle><text x="167" y="81" text-anchor="middle">Cross-</text><text x="167" y="93" text-anchor="middle">Validation</text></g>
         <g class="const-node const-center" style="animation-delay:1.15s"><circle cx="400" cy="190" r="48"></circle><text x="400" y="186" text-anchor="middle">Corridor</text><text x="400" y="200" text-anchor="middle">Scorecard</text></g>
       </svg>
+      <div class="const-mobile-list">
+        <div class="const-m-center">Corridor Scorecard</div>
+        <div class="const-m-grid">
+          <div class="const-m-item">Building Permits</div>
+          <div class="const-m-item">Business Licenses</div>
+          <div class="const-m-item">Resident Sentiment</div>
+          <div class="const-m-item">Crime Trend</div>
+          <div class="const-m-item">Property Sales</div>
+          <div class="const-m-item">Assessed Value</div>
+          <div class="const-m-item">Population &amp; Income</div>
+          <div class="const-m-item">Cross-Validation</div>
+        </div>
+      </div>
     </div>
     <p style="font-size:0.82rem;color:var(--ink-4);">City of Chicago Data Portal (permits, licenses, crime, 311, ACS) + Cook County Assessor/Data Catalog (assessed value, parcel sales) + DePaul IHS, Illinois Realtors, and FHFA as cross-validation sources. Every published figure carries its source, query logic, and pull date.</p>
     <p style="font-size:0.82rem;color:var(--ink-4);margin-top:8px;"><strong style="color:var(--ink-2);">Cross-validation, not self-comparison:</strong> Uptown's price index came out to 135.2 on Tubman's method — independently, FHFA's own index puts the same corridor at 138.2–136.8. A different data source, a different institution, landing within a few points of Tubman's number.</p>
