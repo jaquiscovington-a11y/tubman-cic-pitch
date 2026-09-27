@@ -68,16 +68,25 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Fixed native canvas (1280x720, 16:9). A JS-driven transform: scale()
+   below shrinks/grows this whole box to fit any viewport — phone,
+   tablet, or desktop — so every font-size, padding, and icon inside
+   (all authored in rem/px against this canvas) scales together instead
+   of the box shrinking while the type inside stays desktop-sized. */
 .stage {
   position: relative;
-  width: min(100vw, 177.78vh);
-  height: min(100vh, 56.25vw);
+  width: 1280px;
+  height: 720px;
+  flex: none;
   background: var(--paper);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  transform-origin: center center;
 }
 
 .slide {
@@ -157,7 +166,7 @@ h2.slide-title { font-family: var(--font-display); font-weight: 600; font-size: 
 
 @media print {
   body { overflow: visible; height: auto; background: #fff; }
-  .stage { width: 100vw !important; height: 100vh !important; box-shadow: none; page-break-after: always; }
+  .stage { width: 100vw !important; height: 100vh !important; transform: none !important; box-shadow: none; page-break-after: always; }
   .slide { position: relative !important; opacity: 1 !important; visibility: visible !important; page-break-after: always; height: 100vh; }
   .navbar { display: none !important; }
 }
@@ -2051,6 +2060,20 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
 
 <script>
 (function(){
+  // Scale the fixed 1280x720 stage to fit whatever viewport it's shown
+  // in (phone, tablet, desktop) while keeping every element's relative
+  // size and position exactly as designed.
+  var stage = document.querySelector('.stage');
+  function fitStage() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scale = Math.min(vw / 1280, vh / 720);
+    stage.style.transform = 'scale(' + scale + ')';
+  }
+  fitStage();
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', fitStage);
+
   var slides = Array.prototype.slice.call(document.querySelectorAll('[data-slide]'));
   var idx = 0;
   var countLabel = document.getElementById('countLabel');
