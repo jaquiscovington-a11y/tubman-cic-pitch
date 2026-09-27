@@ -1026,7 +1026,27 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
     padding: 8px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.1);
     text-align: left !important; animation: none !important; background: none !important;
   }
-  .signal-io-label { position: static !important; display: block; margin: 18px 0 6px; }
+  /* The actual INPUT/OUTPUT label elements sit after BOTH columns in the
+     markup (a leftover of their desktop position, floated under each
+     column) — in a static mobile layout that puts both labels together
+     at the very bottom, after every item, instead of heading each group.
+     Hide them here and use generated headings in the right place instead. */
+  .signal-io-label { display: none !important; }
+  .signal-io-in::before, .signal-io-out::before {
+    display: block; font-family: var(--font-mono); font-size: 0.66rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: #a49ee6;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.18);
+  }
+  .signal-io-in::before { content: "\2193  INPUT — per corridor, per interval"; }
+  .signal-io-out::before {
+    content: "\2192  OUTPUT — the corridor scorecard"; color: #d6d2ff; margin-top: 26px;
+  }
+  /* give the output rows a visible accent so it's unmistakably the
+     "answer" the inputs produce, not just more of the same list */
+  .signal-io-item.out {
+    border-left: 2px solid var(--accent-light); padding-left: 10px !important;
+    background: rgba(139,130,247,0.08) !important;
+  }
   .signal-lock { margin-top: 12px; }
 }
 
