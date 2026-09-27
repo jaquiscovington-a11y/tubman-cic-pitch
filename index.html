@@ -2098,15 +2098,35 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
   // in (phone, tablet, desktop) while keeping every element's relative
   // size and position exactly as designed.
   var stage = document.querySelector('.stage');
+  // Mobile Safari resizes window.innerHeight as its address bar shows/hides
+  // but doesn't reliably fire a 'resize' event afterward — using a stale,
+  // too-large height here made the stage render bigger than the real
+  // visible area and get clipped top and bottom. visualViewport tracks the
+  // *actual* visible area and updates correctly, so prefer it when present.
+  function getViewportSize() {
+    if (window.visualViewport) {
+      return { w: window.visualViewport.width, h: window.visualViewport.height };
+    }
+    return { w: window.innerWidth, h: window.innerHeight };
+  }
   function fitStage() {
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
-    var scale = Math.min(vw / 1280, vh / 720);
+    var vp = getViewportSize();
+    var scale = Math.min(vp.w / 1280, vp.h / 720);
     stage.style.transform = 'scale(' + scale + ')';
   }
   fitStage();
   window.addEventListener('resize', fitStage);
-  window.addEventListener('orientationchange', fitStage);
+  window.addEventListener('orientationchange', function () {
+    // iOS can report the old (pre-rotation) size for a moment right when
+    // this fires, so recheck a couple times as the rotation settles.
+    fitStage();
+    setTimeout(fitStage, 120);
+    setTimeout(fitStage, 400);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fitStage);
+    window.visualViewport.addEventListener('scroll', fitStage);
+  }
 
   // Nudge phone visitors in portrait toward landscape, where the 16:9
   // canvas fills the screen instead of shrinking to a small letterboxed
@@ -2116,8 +2136,9 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
   var dismissed = false;
   try { dismissed = sessionStorage.getItem('tubman-rotate-dismissed') === '1'; } catch (e) {}
   function checkOrientation() {
-    var isPhoneSized = Math.min(window.innerWidth, window.innerHeight) < 620;
-    var isPortrait = window.innerHeight > window.innerWidth;
+    var vp = getViewportSize();
+    var isPhoneSized = Math.min(vp.w, vp.h) < 620;
+    var isPortrait = vp.h > vp.w;
     if (isPhoneSized && isPortrait && !dismissed) {
       rotateHint.classList.add('show');
     } else {
@@ -2129,11 +2150,19 @@ ul.plain li { margin-bottom: 9px; line-height: 1.45; font-size: 0.92rem; color: 
       dismissed = true;
       try { sessionStorage.setItem('tubman-rotate-dismissed', '1'); } catch (e) {}
       rotateHint.classList.remove('show');
+      fitStage();
     });
   }
   checkOrientation();
   window.addEventListener('resize', checkOrientation);
-  window.addEventListener('orientationchange', checkOrientation);
+  window.addEventListener('orientationchange', function () {
+    checkOrientation();
+    setTimeout(checkOrientation, 120);
+    setTimeout(checkOrientation, 400);
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', checkOrientation);
+  }
 
   var slides = Array.prototype.slice.call(document.querySelectorAll('[data-slide]'));
   var idx = 0;
